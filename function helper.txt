@@ -1,0 +1,11 @@
+990000862471854
+
+351756
+
+Authentication.deployed().then(function(i){app=i})
+
+app.Register(351756,1351756,false)
+
+app.Register(12345,121351756,true)
+
+app.removeUser(351756)
