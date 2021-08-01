@@ -5,7 +5,40 @@
 Authentication.deployed().then(function(i){app=i})
 
 app.Register(351756,1351756,false)
-
-app.Register(12345,121351756,true)
-
+app.users("12345")
+app.Register(12345,true)
+app.Register("351756",1351756,false)
+app.updateBData("12345", "cd123", 123)
+app.BTdatas("12345",0)
 app.removeUser(351756)
+{
+    "b_id":"12345",
+    "covidStatus":true
+}
+
+ {
+        "b_id":"ab123",
+        "covidStatus":true
+},
+{
+        "b_id":"cd123",
+        "covidStatus":true
+},
+
+{
+"userid":"12345",
+"btdata":[
+    {
+        "b_id":"ab123",
+        "timestamp":"10"
+    },
+     {
+        "b_id":"cd123",
+        "timestamp":"12"
+    },
+     {
+        "b_id":"ef123",
+        "timestamp":"11"
+    }
+]
+}

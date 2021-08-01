@@ -1,32 +1,62 @@
-pragma solidity >=0.4.21 <0.7.0;
+pragma solidity ^0.5.8;
 
 contract Authentication {
-    uint private imei;
-    bytes32 public imeiHash;
-    bytes32 public Hash;
-    struct User {
-        bytes32 imeiHash;
-        uint currentLocation;
-        bool covidStatus; 
-    }
-    uint public userCount;
-    mapping(uint => User) public users;
 
-    function Register(uint _phnID,uint location, bool status) public{
-        imei = _phnID;
-        imeiHash = sha256(abi.encode(imei));
-        userCount++ ;
-        users[userCount] = User(imeiHash,location,status);
-    }
-
-    function removeUser(uint _phnID) public{
-        imei = _phnID;
-        Hash = sha256(abi.encode(imei));
-        for(uint i=0;i<userCount;i++){
-            if (users[i].imeiHash==Hash){
-                delete(users[i]);
-            }            
-        }
+    struct BTdata {
+        string bt_id;
+        uint256 timestamps; 
     }
     
+    struct User {
+        bool covidStatus;
+        uint BTcount;
+        string check;
+    } 
+//    12->{
+//        0->16
+//        1->14
+//        2->18
+//         }
+//    13->{}
+    uint public userCount;
+
+    mapping(string => User) public users;
+    mapping(string => mapping(uint => BTdata)) public BTdatas;
+
+    function Register(string memory B_ID, bool status) public{
+        BTdatas[B_ID];
+        users[B_ID].covidStatus = status;
+        users[B_ID].check = "registered";
+        userCount++ ;
+    }
+
+    function removeUser(string memory B_ID) public{
+        delete(users[B_ID]);
+        for(uint i=0;i<users[B_ID].BTcount;i++){
+            delete(BTdatas[B_ID][i]);
+        }
+    }
+
+    function update_BID(string memory oldB_ID, string memory newB_ID) public{
+        users[newB_ID]=users[oldB_ID];
+        delete(users[oldB_ID]);
+        
+        for(uint i=0; i<users[newB_ID].BTcount;i++){
+            BTdatas[newB_ID][i]=BTdatas[oldB_ID][i];
+            delete(BTdatas[oldB_ID][i]); }
+    }
+    
+    function update_status(string memory B_ID, bool status) public{
+        users[B_ID].covidStatus= status;
+    }
+
+    function updateBData(string memory B_Id, string memory btids, uint256 timestamps) public{    
+        BTdatas[B_Id][users[B_Id].BTcount].bt_id=btids;
+        BTdatas[B_Id][users[B_Id].BTcount].timestamps=timestamps;
+        users[B_Id].BTcount++;  
+    }
+    // function getBtData(){
+        
+    // } 
+
 }
