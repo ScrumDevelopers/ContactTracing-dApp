@@ -4,7 +4,7 @@ const appContract = require('../build/contracts/Authentication.json');
 var appC = contract(appContract);
 var accAdd="0xF8C6244D8740bA30D64048Fb50765A12B724B7D7"
 module.exports = {
-  Register: function(b_id,status) {
+  Register: function(b_id,status,callback) {
     var self = this;
 
     appC.setProvider(self.web3.currentProvider);
@@ -17,6 +17,7 @@ module.exports = {
 
     }).then(function(value) {
       console.log("registration done")
+      callback()
     }).catch(function(e) {
         console.log(e);
     });
@@ -80,7 +81,45 @@ module.exports = {
     }).catch(function(e) {
         console.log(e);
     });
-  }
+  },
+  updateStatus: function (b_id,status,callback) {
+    var self = this;
+
+    appC.setProvider(self.web3.currentProvider);
+
+    let app;
+    appC.deployed().then(async function(instance) {
+      app = instance;
+      app.update_status(b_id,!status,{from:accAdd}).then(()=>{
+        callback();
+        console.log("c status updated")
+      }) 
+    
+    }).then(function(value) {
+      // console.log("registration done")
+    }).catch(function(e) {
+        console.log(e);
+    });
+    
+  },
+  getBTdata: function(id,callback){
+    var self = this;
+
+    appC.setProvider(self.web3.currentProvider);
+
+    let app;
+    appC.deployed().then(async function(instance) {
+      app = instance;
+      app.BTdatas(id,0).then((res)=>{
+        console.log(res.bt_id)
+        callback()
+      })
+    }).then(function(value) {
+      // console.log("registration done")
+    }).catch(function(e) {
+        console.log(e);
+    });
+  },
 
  
 }

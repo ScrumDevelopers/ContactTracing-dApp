@@ -5,6 +5,17 @@ const Web3 = require('web3');
 const truffle_connect = require('./connection/app.js');
 const bodyParser = require('body-parser');
 var cors = require('cors');
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./contact-tracing-app-fbadmin.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+var registrationToken = ["eEt29hnhT6KiWGhmd1SJOS:APA91bEd6Qy6EGXxrOsJzWMZcFj0W1qJ8CM9aNwswOCnP03jG6VWUkDRo-RMxmlzTTl_VO516WprbuvHrayJu2quNCA-MAZlX2h4MV1usIAc8Jxu8_jtZ3KfU643WV8KqTO1XduMJFvr"
+];
+
 // app.use(cors());
 app.use(cors({origin: true, credentials: true}));
 
@@ -26,29 +37,81 @@ app.use(bodyParser.json());
 
 app.post('/Register',(req,res)=>{
   console.log(req.body)
-  truffle_connect.Register(req.body.b_id,req.body.covidStatus)
+  truffle_connect.Register(req.body.b_id,req.body.covidStatus,()=>{res.send("registration done")})
 });
 
-// [{
-//   b_id,
-//   timestamp
-// },
-// {
-
-// },...]
-
-app.get('/saveBTdata',(req,res)=>{
+app.post('/saveBTdata',(req,res)=>{
+  console.log(req.body)
   req.body.btdata.forEach((item)=>{
     truffle_connect.checkUser(item.b_id,(x)=>{
       console.log(x)
       if(x=='registered'){
         console.log(item)
         truffle_connect.updateBData(req.body.userId,item.b_id,item.timestamp)
+
+       
+
       }
     })
    
   })
 })
+
+app.post('/checkuser',(req,res)=>{
+  truffle_connect.checkUser(b_id,(x)=>{
+    console.log(x)
+    if(x=='registered'){
+      console.log(b_id)
+      res.send("registered")
+    }
+  })
+  console.log(req.body)
+})
+
+
+app.post('/changeCStatus',(req,res)=>{
+  truffle_connect.updateStatus(req.body.b_id,req.body.cstatus, ()=>{
+    res.send("c status updated")
+    truffle_connect.getBTdata(req.body.b_id,()=>{
+      admin.messaging().sendToDevice(registrationToken, payload, options)
+      .then(function(response) {
+        console.log("Successfully sent message:", response);
+      })
+      .catch(function(error) {
+        console.log("Error sending message:", error);
+      });
+
+    })
+
+    
+  })
+
+  console.log(req.body)
+})
+
+var payload = {
+  notification: {
+    title: "This is a Notification",
+    body: "This is the body of the notification message."
+  }
+};
+
+ var options = {
+  priority: "high",
+  timeToLive: 60 * 60 *24
+};
+
+// app.post('/sendNoti',(req,res)=>{
+//   console.log("noti route")
+//   admin.messaging().sendToDevice(registrationToken, payload, options)
+//   .then(function(response) {
+//     console.log("Successfully sent message:", response);
+//   })
+//   .catch(function(error) {
+//     console.log("Error sending message:", error);
+//   });
+
+// })
 
 app.listen(port, () => {
 
